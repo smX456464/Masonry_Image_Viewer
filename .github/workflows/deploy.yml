@@ -20,9 +20,17 @@ jobs:
       - name: Install CloudBase CLI
         run: npm install -g @cloudbase/cli
 
+      - name: Login to CloudBase
+        env:
+          TCB_SECRET_ID: ${{ secrets.SECRET_ID }}
+          TCB_SECRET_KEY: ${{ secrets.SECRET_KEY }}
+        run: |
+          # 创建临时密钥文件（CI 环境适用）
+          echo "{\"secretId\":\"$TCB_SECRET_ID\",\"secretKey\":\"$TCB_SECRET_KEY\"}" > /tmp/tcb_key.json
+          tcb login --key /tmp/tcb_key.json
+
       - name: Deploy to CloudBase
         env:
-          TENCENTCLOUD_SECRET_ID: ${{ secrets.SECRET_ID }}
-          TENCENTCLOUD_SECRET_KEY: ${{ secrets.SECRET_KEY }}
           TCB_ENV_ID: ${{ secrets.ENV_ID }}
-        run: tcb hosting deploy ./ /tupian -e $TCB_ENV_ID
+        run: |
+          tcb hosting deploy ./ /tupian -e "$TCB_ENV_ID"
