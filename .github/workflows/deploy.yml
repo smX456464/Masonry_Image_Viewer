@@ -20,13 +20,15 @@ jobs:
       - name: Install CloudBase CLI
         run: npm install -g @cloudbase/cli
 
-      - name: Deploy to CloudBase
+      - name: Login to CloudBase
         env:
           TCB_SECRET_ID: ${{ secrets.SECRET_ID }}
           TCB_SECRET_KEY: ${{ secrets.SECRET_KEY }}
+        run: |
+          tcb login --apiKeyId $TCB_SECRET_ID --apiKey $TCB_SECRET_KEY
+
+      - name: Deploy to CloudBase
+        env:
           TCB_ENV_ID: ${{ secrets.ENV_ID }}
         run: |
-          echo "CLI version:"
-          tcb --version
-          echo "Starting deploy..."
           tcb hosting deploy ./ /tupian -e $TCB_ENV_ID
