@@ -2,22 +2,30 @@ name: Deploy to CloudBase
 
 on:
   push:
-    branches: [main]  # 只在 main 分支 push 时触发
+    branches: [main]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
-      # 1. 拉取代码
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # 2. 直接部署静态文件到 CloudBase 静态托管
-      - name: Deploy to CloudBase
-        uses: TencentCloudBase/cloudbase-action@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
         with:
-          secretId: ${{ secrets.SECRET_ID }}
-          secretKey: ${{ secrets.SECRET_KEY }}
-          envId: ${{ secrets.ENV_ID }}
-          staticSrcPath: .  # 关键！部署根目录（因为你的文件都在根目录）
+          node-version: 18
+
+      - name: Install CloudBase CLI
+        run: npm install -g @cloudbase/cli
+
+      - name: Deploy to CloudBase
+        env:
+          TCB_SECRET_ID: ${{ secrets.SECRET_ID }}
+          TCB_SECRET_KEY: ${{ secrets.SECRET_KEY }}
+        run: |
+          # 使用 API 密钥登录（非交互式）
+          tcb login --apiKeyId $TCB_SECRET_ID --apiKey $TCB_SECRET_KEY
+          # 部署当前目录所有文件到云端 /tupian 路径
+          tcb hosting deploy ./ /tupian -e ${{ secrets.ENV_ID }}
