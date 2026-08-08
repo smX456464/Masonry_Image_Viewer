@@ -1,38 +1,32 @@
-Logo
-Skip to content
-smX456464
-Masonry_Image_Viewer
-Repository navigation
-Code
-Pull requests
-Agents
-Actions
-Projects
-Security and quality
-Insights
-Settings
-Deploy to CloudBase
-Update deploy.yml #3
-All jobs
-Run details
-Triggered via push 3 minutes ago
-@smX456464smX456464
-pushed
- 2def95e
-main
-Status
-Failure
-Total duration
-50s
-Artifacts
-–
-deploy.yml
-on: push
+name: Deploy to CloudBase
 
+on:
+  push:
+    branches: [main]
 
-Annotations
-1 error and 1 warning
-deploy
-Process completed with exit code 1.
-deploy
-Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v3, actions/setup-node@v3. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install CloudBase CLI
+        run: npm install -g @cloudbase/cli
+
+      - name: Deploy to CloudBase
+        env:
+          TCB_SECRET_ID: ${{ secrets.SECRET_ID }}
+          TCB_SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          TCB_ENV_ID: ${{ secrets.ENV_ID }}
+        run: |
+          echo "CLI version:"
+          tcb --version
+          echo "Starting deploy..."
+          tcb hosting deploy ./ /tupian -e $TCB_ENV_ID
