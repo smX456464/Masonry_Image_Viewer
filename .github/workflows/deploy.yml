@@ -25,10 +25,11 @@ jobs:
           TCB_SECRET_ID: ${{ secrets.SECRET_ID }}
           TCB_SECRET_KEY: ${{ secrets.SECRET_KEY }}
         run: |
-          tcb login --apiKeyId $TCB_SECRET_ID --apiKey $TCB_SECRET_KEY
+          echo "SecretId prefix: ${TCB_SECRET_ID:0:6}"   # 仅打印前6位，不影响安全
+          tcb login --apiKeyId "$TCB_SECRET_ID" --apiKey "$TCB_SECRET_KEY" --force
 
       - name: Deploy to CloudBase
         env:
           TCB_ENV_ID: ${{ secrets.ENV_ID }}
         run: |
-          tcb hosting deploy ./ /tupian -e $TCB_ENV_ID
+          tcb hosting deploy ./ /tupian -e "$TCB_ENV_ID"
