@@ -9,22 +9,28 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1. 拉取代码
       - name: Checkout code
         uses: actions/checkout@v3
 
+      # 2. 安装 Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 18
 
+      # 3. 安装 CloudBase CLI
       - name: Install CloudBase CLI
         run: npm install -g @cloudbase/cli
 
-      - name: Deploy to CloudBase
-        env:
-          TENCENTCLOUD_SECRET_ID: ${{ secrets.SECRET_ID }}
-          TENCENTCLOUD_SECRET_KEY: ${{ secrets.SECRET_KEY }}
-          TCB_ENV_ID: ${{ secrets.ENV_ID }}
+      # 4. 使用主账号密钥登录（显式登录，非交互）
+      - name: Login to CloudBase
         run: |
-          # --ignore 参数忽略 .git 目录和隐藏文件
-          tcb hosting deploy ./ /tupian -e "$TCB_ENV_ID" --ignore .git
+          # 这里直接写死密钥用于测试（测试完成后请替换为 Secrets 方式）
+          tcb login --apiKeyId "AKIDtxpX4by84oRuCKE7pNo34twoTvP2Xqyu" \
+                    --apiKey "pRtIdp9TFsJ2Zw9C3iAPSIzTktwq46va"
+
+      # 5. 部署静态文件到 /tupian 路径，忽略 .git 文件夹
+      - name: Deploy to CloudBase
+        run: |
+          tcb hosting deploy ./ /tupian -e "tuping-d5gut3td2293ecf01" --ignore .git
