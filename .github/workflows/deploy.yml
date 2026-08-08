@@ -9,24 +9,40 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1. 拉取代码
       - name: Checkout code
         uses: actions/checkout@v3
 
+      # 2. 安装 Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 18
 
+      # 3. 安装 CloudBase CLI
       - name: Install CloudBase CLI
         run: npm install -g @cloudbase/cli
 
+      # 4. 使用主账号密钥登录（显式登录，非交互）
+      # 注意：测试完成后，请将下面的硬编码密钥替换为 GitHub Secrets 方式
       - name: Login to CloudBase
         run: |
           tcb login --apiKeyId "AKIDtxpX4by84oRuCKE7pNo34twoTvP2Xqyu" \
                     --apiKey "pRtIdp9TFsJ2Zw9C3iAPSIzTktwq46va"
 
+      # 5. 权限诊断：列出当前账号可访问的环境（不破坏原有功能）
+      - name: Check environment permissions
+        run: |
+          echo "=== 当前可访问的环境列表 ==="
+          tcb env list
+          echo "=== 目标环境详情 ==="
+          tcb env info -e "tuping-d5gut3td2293ecf01"
+
+      # 6. 删除 .git 目录（避免权限问题）
+      - name: Remove .git directory
+        run: rm -rf .git
+
+      # 7. 部署静态文件到 /tupian 路径
       - name: Deploy to CloudBase
         run: |
-          # 删除 .git 目录，避免权限问题
-          rm -rf .git
           tcb hosting deploy ./ /tupian -e "tuping-d5gut3td2293ecf01"
