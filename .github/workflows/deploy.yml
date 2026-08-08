@@ -20,13 +20,14 @@ jobs:
       - name: Install CloudBase CLI
         run: npm install -g @cloudbase/cli
 
-      - name: Login to CloudBase
+      - name: Create temporary key file and login
         env:
           TCB_SECRET_ID: ${{ secrets.SECRET_ID }}
           TCB_SECRET_KEY: ${{ secrets.SECRET_KEY }}
         run: |
-          # 创建临时密钥文件（CI 环境适用）
+          # 生成临时密钥文件（JSON 格式）
           echo "{\"secretId\":\"$TCB_SECRET_ID\",\"secretKey\":\"$TCB_SECRET_KEY\"}" > /tmp/tcb_key.json
+          # 使用 --key 方式登录（非交互）
           tcb login --key /tmp/tcb_key.json
 
       - name: Deploy to CloudBase
